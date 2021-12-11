@@ -1,0 +1,3 @@
+[submodule "web-for-virtualization"]
+	path = web-for-virtualization
+	url = https://github.com/Eagle-0wl/web-for-virtualization
