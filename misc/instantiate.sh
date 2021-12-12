@@ -37,8 +37,12 @@ while [ "3" -ne $(echo $RESULT_XML | xmllint --xpath '//VM/LCM_STATE/text()' -) 
     RESULT_XML=$(onevm show $WEB_VM_ID -x)
 done
 echo "$(date +"%T") WEB VM is Running, Proceeding!"
-
-#RESULT_XML=$(onevm show $WEB_VM_ID -x)
+while [ "false" -eq $(echo $RESULT_XML | xmllint --xpath 'boolean(//VM/USER_TEMPLATE/PRIVATE_IP)' -) ]; do
+    echo "$(date +"%T") VM IP address not issued yet, waiting 5 sec"
+    sleep 5
+    RESULT_XML=$(onevm show $WEB_VM_ID -x)
+done
+echo "$(date +"%T") WEB VM IP retrieved, Proceeding!"
 
 # Save VM Status for debbuging
 echo $RESULT_XML | xmllint --format - >"${WEB_VM_ID}.txt"
