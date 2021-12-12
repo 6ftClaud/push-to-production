@@ -15,10 +15,17 @@ echo $CVMID
 
 while [ "3" -ne $(onevm show $CVMID -x | xmllint --xpath '//VM/STATE/text()' -) ]
 do
- echo "$(date +"%T") VM not ready, waiting 5 sec"
+ echo "$(date +"%T") VM State not ACTIVE, waiting 5 sec"
  sleep 5
 done
-echo "VM ready, continuing"
+echo "VM Initialized"
+while [ "3" -ne $(onevm show $CVMID -x | xmllint --xpath '//VM/LCM_STATE/text()' -) ]
+do
+ echo "$(date +"%T") VM LCM State not RUNNING, waiting 5 sec"
+ sleep 5
+done
+echo "VM is Running, Proceeding!"
+
 RESULT_XML=$(onevm show $CVMID -x)
 #$(onevm show $CVMID > ${CVMID}.txt)
 CSSH_CON=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/CONNECT_INFO1/text()' -)
