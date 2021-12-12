@@ -1,5 +1,9 @@
 #!/bin/bash
 
+Print_status() {
+    echo "$(date +"%T") PTP-$1 $2"
+}
+
 # Generate SSH key
 ssh-keygen -f master_key -q -N ""
 
@@ -19,48 +23,48 @@ export ONE_AUTH="$HOME/.one/Darius_auth"
 WEB_VM_ID=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096 --ssh master_key.pub --context NETWORK=YES | cut -d ' ' -f 3)
 
 # Notify
-echo "$(date +"%T") WEB VM deployment started, ID: $WEB_VM_ID"
+Print_status "WEB" "Deployment started, ID: $WEB_VM_ID"
 
 # Get Status XML and Loop until ready
 WEB_VM_RESULT_XML=$(onevm show $WEB_VM_ID -x)
 while [ "3" -ne $(echo $WEB_VM_RESULT_XML | xmllint --xpath '//VM/STATE/text()' -) ]; do
-    echo "$(date +"%T") VM State not ACTIVE, waiting 5 sec"
+    Print_status "WEB" "State not ACTIVE, waiting 5 sec"
     sleep 5
     WEB_VM_RESULT_XML=$(onevm show $WEB_VM_ID -x)
 done
-echo "$(date +"%T") WEB VM Initialized"
+Print_status "WEB" "Initialized"
 while [ "3" -ne $(echo $WEB_VM_RESULT_XML | xmllint --xpath '//VM/LCM_STATE/text()' -) ]; do
-    echo "$(date +"%T") VM LCM State not RUNNING, waiting 5 sec"
+    Print_status "WEB" "LCM State not RUNNING, waiting 5 sec"
     sleep 5
     WEB_VM_RESULT_XML=$(onevm show $WEB_VM_ID -x)
 done
-echo "$(date +"%T") WEB VM is Running, Proceeding!"
+Print_status "WEB" "is Running, Proceeding!"
 while [ "false" = $(echo $WEB_VM_RESULT_XML | xmllint --xpath 'boolean(//VM/USER_TEMPLATE/PRIVATE_IP)' -) ]; do
-    echo "$(date +"%T") VM IP address not issued yet, waiting 5 sec"
+    Print_status "WEB" "IP address not issued yet, waiting 5 sec"
     sleep 5
     WEB_VM_RESULT_XML=$(onevm show $WEB_VM_ID -x)
 done
-echo "$(date +"%T") WEB VM IP retrieved, Proceeding!"
+Print_status "WEB" "IP retrieved, Proceeding!"
 
 # Get Network information
 WEB_VM_PUB_IP=$(echo $WEB_VM_RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PUBLIC_IP/text()' -)
-echo "$(date +"%T") WEB VM Public IP: $WEB_VM_PUB_IP"
+Print_status "WEB" "Public IP: $WEB_VM_PUB_IP"
 WEB_VM_PRIV_IP=$(echo $WEB_VM_RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PRIVATE_IP/text()' -)
-echo "$(date +"%T") WEB VM Private IP: $WEB_VM_PRIV_IP"
+Print_status "WEB" "Private IP: $WEB_VM_PRIV_IP"
 WEB_VM_FRWRD=$(echo $WEB_VM_RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/TCP_PORT_FORWARDING/text()' -)
-echo "$(date +"%T") WEB VM Port Forwarding (public:private): $WEB_VM_FRWRD"
+Print_status "WEB" "Port Forwarding (public:private): $WEB_VM_FRWRD"
 
 if ssh-keygen -F $WEB_VM_PRIV_IP >/dev/null; then
-    echo "$(date +"%T") OLD SSH key found, deleting"
+    Print_status "WEB" "OLD SSH key found, deleting"
     ssh-keygen -R $WEB_VM_PRIV_IP
 fi
 
 while ! ssh -o "StrictHostKeyChecking no" -i master_key root@$WEB_VM_PRIV_IP "echo \"\$(date +\"%T\") WEB VM SSH Verified, Proceeding!\""; do
-    echo "$(date +"%T") VM SSH not up yet, waiting 5 sec"
+    Print_status "WEB" "SSH not up yet, waiting 5 sec"
     sleep 5
 done
 
 # Save VM Status for debbuging
 echo $WEB_VM_RESULT_XML | xmllint --format - >"${WEB_VM_ID}.txt"
 
-echo "$(date +"%T") WEB VM CREATED! (I hope))"
+Print_status "WEB" "VM CREATED! (I hope))"
