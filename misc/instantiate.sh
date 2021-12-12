@@ -1,35 +1,44 @@
 #!/bin/bash
+# Connect to VU
 export ONE_XMLRPC="https://grid5.mif.vu.lt/cloud3/RPC2"
 #export ONE_AUTH="$HOME/.one/Matas_auth"
 #export ONE_AUTH="$HOME/.one/Julius_auth"
 #export ONE_AUTH="$HOME/.one/Klaudijus_auth"
 
-# WEB server VM
-
-# Auth to Darius
+###############################################
+############## WEB server VM ##################
+###############################################
+# Use Auth File of Darius
 export ONE_AUTH="$HOME/.one/Darius_auth"
-# Create Debian 11 VM 
-CVMREZ=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096)
-CVMID=$(echo $CVMREZ | cut -d ' ' -f 3)
-echo $CVMID
 
-while [ "3" -ne $(onevm show $CVMID -x | xmllint --xpath '//VM/STATE/text()' -) ]
-do
- echo "$(date +"%T") VM State not ACTIVE, waiting 5 sec"
- sleep 5
+# Create Debian 11 VM with 4 GB disk; Get VM id
+WEB_VM_ID=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096 | cut -d ' ' -f 3)
+
+# Notify
+echo "VM deployment started, ID: $WEB_VM_ID"
+
+# Get Status XML and Loop until ready
+RESULT_XML=$(onevm show $CVMID -x)
+while [ "3" -ne $(echo $RESULT_XML | xmllint --xpath '//VM/STATE/text()' -) ]; do
+    echo "$(date +"%T") VM State not ACTIVE, waiting 5 sec"
+    sleep 5
+    RESULT_XML=$(onevm show $CVMID -x)
 done
 echo "VM Initialized"
-while [ "3" -ne $(onevm show $CVMID -x | xmllint --xpath '//VM/LCM_STATE/text()' -) ]
-do
- echo "$(date +"%T") VM LCM State not RUNNING, waiting 5 sec"
- sleep 5
+while [ "3" -ne $(echo $RESULT_XML | xmllint --xpath '//VM/LCM_STATE/text()' -) ]; do
+    echo "$(date +"%T") VM LCM State not RUNNING, waiting 5 sec"
+    sleep 5
+    RESULT_XML=$(onevm show $CVMID -x)
 done
 echo "VM is Running, Proceeding!"
 
-RESULT_XML=$(onevm show $CVMID -x)
-#$(onevm show $CVMID > ${CVMID}.txt)
-CSSH_CON=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/CONNECT_INFO1/text()' -)
-CSSH_PRIP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PRIVATE_IP/text()' -)
-echo "Connection string: $CSSH_CON"
-echo "Local IP: $CSSH_PRIP"
-echo $RESULT_XML > "${CVMID}.txt"
+# Save VM Status for debbuging
+xmllint --format $RESULT_XML >"${CVMID}.txt"
+
+# Get Network information
+WEB_VM_PUB_IP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PUBLIC_IP/text()' -)
+WEB_VM_PRIV_IP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PRIVATE_IP/text()' -)
+WEB_VM_FRWRD=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/TCP_PORT_FORWARDING/text()' -)
+echo "Public IP: $WEB_VM_PUB_IP"
+echo "Private IP: $WEB_VM_PRIV_IP"
+echo "Port Forwarding (public:private): $WEB_VM_FRWRD"
