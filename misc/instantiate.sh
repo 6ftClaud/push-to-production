@@ -15,7 +15,7 @@ export ONE_AUTH="$HOME/.one/Darius_auth"
 WEB_VM_ID=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096 | cut -d ' ' -f 3)
 
 # Notify
-echo "VM deployment started, ID: $WEB_VM_ID"
+echo "$(date +"%T") WEB VM deployment started, ID: $WEB_VM_ID"
 
 # Get Status XML and Loop until ready
 RESULT_XML=$(onevm show $WEB_VM_ID -x)
@@ -30,15 +30,17 @@ while [ "3" -ne $(echo $RESULT_XML | xmllint --xpath '//VM/LCM_STATE/text()' -) 
     sleep 5
     RESULT_XML=$(onevm show $WEB_VM_ID -x)
 done
-echo "VM is Running, Proceeding!"
+echo "$(date +"%T") WEB VM is Running, Proceeding!"
+
+#RESULT_XML=$(onevm show $WEB_VM_ID -x)
 
 # Save VM Status for debbuging
-xmllint --format $RESULT_XML >"${WEB_VM_ID}.txt"
+$(echo $RESULT_XML | xmllint --format - )>"${WEB_VM_ID}.txt"
 
 # Get Network information
 WEB_VM_PUB_IP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PUBLIC_IP/text()' -)
+echo "$(date +"%T") WEB VM Public IP: $WEB_VM_PUB_IP"
 WEB_VM_PRIV_IP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PRIVATE_IP/text()' -)
+echo "$(date +"%T") WEB VM Private IP: $WEB_VM_PRIV_IP"
 WEB_VM_FRWRD=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/TCP_PORT_FORWARDING/text()' -)
-echo "Public IP: $WEB_VM_PUB_IP"
-echo "Private IP: $WEB_VM_PRIV_IP"
-echo "Port Forwarding (public:private): $WEB_VM_FRWRD"
+echo "$(date +"%T") WEB VM Port Forwarding (public:private): $WEB_VM_FRWRD"
