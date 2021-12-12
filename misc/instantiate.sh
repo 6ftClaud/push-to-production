@@ -4,6 +4,58 @@ Print_status() {
     echo "$(date +"%T") PTP-$1 $2"
 }
 
+Create_VM() {
+    VM_ID=$(onetemplate instantiate $1 --name "PTP-WEB" --disk $2:size=4096 --ssh master_key.pub --context NETWORK=YES | cut -d ' ' -f 3)
+
+    # Notify
+    Print_status $3 "Deployment started, ID: $VM_ID"
+
+    # Get Status XML and Loop until ready
+    RESULT_XML=$(onevm show $VM_ID -x)
+    while [ "3" -ne $(echo $RESULT_XML | xmllint --xpath '//VM/STATE/text()' -) ]; do
+        Print_status $3 "State not ACTIVE, waiting 5 sec"
+        sleep 5
+        RESULT_XML=$(onevm show $VM_ID -x)
+    done
+    Print_status $3 "Initialized"
+    while [ "3" -ne $(echo $RESULT_XML | xmllint --xpath '//VM/LCM_STATE/text()' -) ]; do
+        Print_status $3 "LCM State not RUNNING, waiting 5 sec"
+        sleep 5
+        RESULT_XML=$(onevm show $VM_ID -x)
+    done
+    Print_status $3 "is Running, Proceeding!"
+    while [ "false" = $(echo $RESULT_XML | xmllint --xpath 'boolean(//VM/USER_TEMPLATE/PRIVATE_IP)' -) ]; do
+        Print_status $3 "IP address not issued yet, waiting 5 sec"
+        sleep 5
+        RESULT_XML=$(onevm show $VM_ID -x)
+    done
+    Print_status $3 "IP retrieved, Proceeding!"
+
+    # Get Network information
+    VM_PUB_IP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PUBLIC_IP/text()' -)
+    Print_status $3 "Public IP: $VM_PUB_IP"
+    VM_PRIV_IP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PRIVATE_IP/text()' -)
+    Print_status $3 "Private IP: $VM_PRIV_IP"
+    VM_FRWRD=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/TCP_PORT_FORWARDING/text()' -)
+    Print_status $3 "Port Forwarding (public:private): $VM_FRWRD"
+
+    if ssh-keygen -F $VM_PRIV_IP >/dev/null; then
+        Print_status $3 "OLD SSH key found, deleting"
+        ssh-keygen -R $VM_PRIV_IP
+    fi
+
+    while ! ssh -o "StrictHostKeyChecking no" -i master_key root@$VM_PRIV_IP "echo \"\$(date +\"%T\") PTP-$3 SSH Verified, Proceeding!\""; do
+        Print_status $3 "SSH not up yet, waiting 5 sec"
+        sleep 5
+    done
+
+    # Save VM Status for debbuging
+    echo $RESULT_XML | xmllint --format - >"${VM_ID}.txt"
+
+    Print_status $3 "VM CREATED! (I hope))"
+}
+
+
 # Generate SSH key
 ssh-keygen -f master_key -q -N ""
 
@@ -20,51 +72,8 @@ export ONE_XMLRPC="https://grid5.mif.vu.lt/cloud3/RPC2"
 export ONE_AUTH="$HOME/.one/Darius_auth"
 
 # Create Debian 11 VM with 4 GB disk; Get VM id
-WEB_VM_ID=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096 --ssh master_key.pub --context NETWORK=YES | cut -d ' ' -f 3)
+VM_Image_ID=1570 #Debian 11
+VM_Disk_ID=3107 #Debian 11 Disk
+VM_Name="WEB"
 
-# Notify
-Print_status "WEB" "Deployment started, ID: $WEB_VM_ID"
-
-# Get Status XML and Loop until ready
-WEB_VM_RESULT_XML=$(onevm show $WEB_VM_ID -x)
-while [ "3" -ne $(echo $WEB_VM_RESULT_XML | xmllint --xpath '//VM/STATE/text()' -) ]; do
-    Print_status "WEB" "State not ACTIVE, waiting 5 sec"
-    sleep 5
-    WEB_VM_RESULT_XML=$(onevm show $WEB_VM_ID -x)
-done
-Print_status "WEB" "Initialized"
-while [ "3" -ne $(echo $WEB_VM_RESULT_XML | xmllint --xpath '//VM/LCM_STATE/text()' -) ]; do
-    Print_status "WEB" "LCM State not RUNNING, waiting 5 sec"
-    sleep 5
-    WEB_VM_RESULT_XML=$(onevm show $WEB_VM_ID -x)
-done
-Print_status "WEB" "is Running, Proceeding!"
-while [ "false" = $(echo $WEB_VM_RESULT_XML | xmllint --xpath 'boolean(//VM/USER_TEMPLATE/PRIVATE_IP)' -) ]; do
-    Print_status "WEB" "IP address not issued yet, waiting 5 sec"
-    sleep 5
-    WEB_VM_RESULT_XML=$(onevm show $WEB_VM_ID -x)
-done
-Print_status "WEB" "IP retrieved, Proceeding!"
-
-# Get Network information
-WEB_VM_PUB_IP=$(echo $WEB_VM_RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PUBLIC_IP/text()' -)
-Print_status "WEB" "Public IP: $WEB_VM_PUB_IP"
-WEB_VM_PRIV_IP=$(echo $WEB_VM_RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PRIVATE_IP/text()' -)
-Print_status "WEB" "Private IP: $WEB_VM_PRIV_IP"
-WEB_VM_FRWRD=$(echo $WEB_VM_RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/TCP_PORT_FORWARDING/text()' -)
-Print_status "WEB" "Port Forwarding (public:private): $WEB_VM_FRWRD"
-
-if ssh-keygen -F $WEB_VM_PRIV_IP >/dev/null; then
-    Print_status "WEB" "OLD SSH key found, deleting"
-    ssh-keygen -R $WEB_VM_PRIV_IP
-fi
-
-while ! ssh -o "StrictHostKeyChecking no" -i master_key root@$WEB_VM_PRIV_IP "echo \"\$(date +\"%T\") WEB VM SSH Verified, Proceeding!\""; do
-    Print_status "WEB" "SSH not up yet, waiting 5 sec"
-    sleep 5
-done
-
-# Save VM Status for debbuging
-echo $WEB_VM_RESULT_XML | xmllint --format - >"${WEB_VM_ID}.txt"
-
-Print_status "WEB" "VM CREATED! (I hope))"
+Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name
