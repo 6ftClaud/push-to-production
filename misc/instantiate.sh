@@ -18,22 +18,22 @@ WEB_VM_ID=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096 
 echo "VM deployment started, ID: $WEB_VM_ID"
 
 # Get Status XML and Loop until ready
-RESULT_XML=$(onevm show $CVMID -x)
+RESULT_XML=$(onevm show $WEB_VM_ID -x)
 while [ "3" -ne $(echo $RESULT_XML | xmllint --xpath '//VM/STATE/text()' -) ]; do
     echo "$(date +"%T") VM State not ACTIVE, waiting 5 sec"
     sleep 5
-    RESULT_XML=$(onevm show $CVMID -x)
+    RESULT_XML=$(onevm show $WEB_VM_ID -x)
 done
 echo "VM Initialized"
 while [ "3" -ne $(echo $RESULT_XML | xmllint --xpath '//VM/LCM_STATE/text()' -) ]; do
     echo "$(date +"%T") VM LCM State not RUNNING, waiting 5 sec"
     sleep 5
-    RESULT_XML=$(onevm show $CVMID -x)
+    RESULT_XML=$(onevm show $WEB_VM_ID -x)
 done
 echo "VM is Running, Proceeding!"
 
 # Save VM Status for debbuging
-xmllint --format $RESULT_XML >"${CVMID}.txt"
+xmllint --format $RESULT_XML >"${WEB_VM_ID}.txt"
 
 # Get Network information
 WEB_VM_PUB_IP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PUBLIC_IP/text()' -)
