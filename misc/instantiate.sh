@@ -5,7 +5,7 @@ Print_status() {
 }
 
 Create_VM() {
-    VM_ID=$(onetemplate instantiate $1 --name "PTP-WEB" --disk $2:size=4096 --ssh master_key.pub --context NETWORK=YES | cut -d ' ' -f 3)
+    VM_ID=$(onetemplate instantiate $1 --name "PTP-WEB" --disk $2:size=4096 --ssh master_key.pub --context NETWORK=YES --raw TCP_PORT_FORWARDING=$4 | cut -d ' ' -f 3)
 
     # Notify
     Print_status $3 "Deployment started, ID: $VM_ID"
@@ -74,8 +74,9 @@ export ONE_AUTH="$HOME/.one/Darius_auth"
 VM_Image_ID=1570 #Debian 11
 VM_Disk_ID=3107 #Debian 11 Disk
 VM_Name="WEB"
+VM_Port=80
 
-Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name
+Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port
 
 
 #export ONE_AUTH="$HOME/.one/Julius_auth"
