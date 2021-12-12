@@ -35,7 +35,7 @@ echo "$(date +"%T") WEB VM is Running, Proceeding!"
 #RESULT_XML=$(onevm show $WEB_VM_ID -x)
 
 # Save VM Status for debbuging
-$(echo $RESULT_XML | xmllint --format - )>"${WEB_VM_ID}.txt"
+echo $RESULT_XML | xmllint --format - >"${WEB_VM_ID}.txt"
 
 # Get Network information
 WEB_VM_PUB_IP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PUBLIC_IP/text()' -)
