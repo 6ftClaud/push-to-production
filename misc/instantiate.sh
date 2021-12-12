@@ -5,7 +5,7 @@ Print_status() {
 }
 
 Create_VM() {
-    VM_ID=$(onetemplate instantiate $1 --name "PTP-WEB" --disk $2:size=4096 --ssh master_key.pub --context NETWORK=YES --raw TCP_PORT_FORWARDING=$4 | cut -d ' ' -f 3)
+    VM_ID=$(onetemplate instantiate $1 --name "PTP-WEB" --disk $2:size=8192 --ssh master_key.pub --context NETWORK=YES,ROOT_PASSWORD=$5 --raw TCP_PORT_FORWARDING=$4 | cut -d ' ' -f 3)
 
     # Notify
     Print_status $3 "Deployment started, ID: $VM_ID"
@@ -63,6 +63,9 @@ Create_VM() {
 # Generate SSH key
 ssh-keygen -f master_key -q -N ""
 
+password=$(< /dev/urandom tr -dc _a-z-0-9 | head -c8)
+echo $password >master_password
+
 # Connect to VU
 export ONE_XMLRPC="https://grid5.mif.vu.lt/cloud3/RPC2"
 
@@ -74,14 +77,42 @@ echo "[servers]" >ansible/hosts
 # Use Auth File of Darius
 export ONE_AUTH="$HOME/.one/Darius_auth"
 
+
 # Create Debian 11 VM with 4 GB disk; Get VM id
 VM_Image_ID=1570 #Debian 11
 VM_Disk_ID=3107 #Debian 11 Disk
 VM_Name="WEB"
 VM_Port=80
 
-Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port
+Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
 
 
-#export ONE_AUTH="$HOME/.one/Julius_auth"
-#export ONE_AUTH="$HOME/.one/Klaudijus_auth"
+# ###############################################
+# ############## SQL server VM ##################
+# ###############################################
+# # Use Auth File of Darius
+# export ONE_AUTH="$HOME/.one/Julius_auth"
+
+# # Create Debian 11 VM with 4 GB disk; Get VM id
+# VM_Image_ID=1570 #Debian 11
+# VM_Disk_ID=3107 #Debian 11 Disk
+# VM_Name="SQL"
+# VM_Port=22
+
+# Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
+
+
+# ###############################################
+# ############## SQL server VM ##################
+# ###############################################
+# # Use Auth File of Darius
+# export ONE_AUTH="$HOME/.one/Klaudijus_auth"
+
+# # Create Debian 11 VM with 4 GB disk; Get VM id
+# VM_Image_ID=1571 #Debian 11 lxde
+# VM_Disk_ID=3108 #Debian 11 Disk
+# VM_Name="Client"
+# VM_Port=3389
+
+# Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
+
