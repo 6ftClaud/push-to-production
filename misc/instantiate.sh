@@ -13,7 +13,7 @@ CVMREZ=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096)
 CVMID=$(echo $CVMREZ | cut -d ' ' -f 3)
 echo $CVMID
 
-while [ [ "3" -ne $(onevm show $CVMID -x | xmllint --xpath '//VM/STATE/text()' -) ]
+while [ "3" -ne $(onevm show $CVMID -x | xmllint --xpath '//VM/STATE/text()' -) ]
 do
  echo "$(date +"%T") VM not ready, waiting 5 sec"
  sleep 5
