@@ -69,7 +69,7 @@ ssh-keygen -f master_key -q -N ""
 Print_status "Main" "SSH key generated!"
 
 Print_status "Main" "Generating Password"
-password=$(tr </dev/urandom -dc _a-z-0-9 | head -c8)
+password=$(tr </dev/urandom -dc a-z0-9 | head -c8)
 echo $password >master_password
 Print_status "Main" "Done! Password is: $password"
 
