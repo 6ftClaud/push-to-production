@@ -1,8 +1,10 @@
-#!/bin/sh
-CUSER="$1"
-CPASS="$2"
-CENDPOINT=https://grid5.mif.vu.lt/cloud3/RPC2
-CVMREZ=$(onetemplate instantiate "debian11" --user $CUSER --password $CPASS --endpoint $CENDPOINT)
+#!/bin/bash
+export ONE_XMLRPC="https://grid5.mif.vu.lt/cloud3/RPC2"
+export ONE_AUTH="$HOME/.one/Matas_auth"
+#export ONE_AUTH="$HOME/.one/Julius_auth"
+#export ONE_AUTH="$HOME/.one/Klaudijus_auth"
+#export ONE_AUTH="$HOME/.one/Darius_auth"
+CVMREZ=$(onetemplate instantiate "debian11" --name "PTP-WEB" )
 CVMID=$(echo $CVMREZ | cut -d ' ' -f 3)
 echo $CVMID
 echo "Waiting for VM to RUN 30 sec."
