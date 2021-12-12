@@ -19,8 +19,10 @@ do
  sleep 5
 done
 echo "VM ready, continuing"
-$(onevm show $CVMID > ${CVMID}.txt)
-CSSH_CON=$(cat $CVMID.txt | grep CONNECT\_INFO1| cut -d '=' -f 2 | tr -d '"')
-CSSH_PRIP=$(cat $CVMID.txt | grep PRIVATE\_IP| cut -d '=' -f 2 | tr -d '"')
+RESULT_XML=$(onevm show $CVMID -x)
+#$(onevm show $CVMID > ${CVMID}.txt)
+CSSH_CON=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/CONNECT_INFO1/text()' -)
+CSSH_PRIP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PRIVATE_IP/text()' -)
 echo "Connection string: $CSSH_CON"
 echo "Local IP: $CSSH_PRIP"
+echo $RESULT_XML > "${CVMID}.txt"
