@@ -54,6 +54,8 @@ Create_VM() {
     # Save VM Status for debbuging
     echo $RESULT_XML | xmllint --format - >"${VM_ID}.txt"
 
+    echo "PTP-$3 ansible_host=$VM_PRIV_IP ansible_ssh_private_key_file=master_key" >>ansible/hosts
+
     Print_status $3 "VM CREATED! (I hope)"
 }
 
@@ -63,6 +65,8 @@ ssh-keygen -f master_key -q -N ""
 
 # Connect to VU
 export ONE_XMLRPC="https://grid5.mif.vu.lt/cloud3/RPC2"
+
+echo "[servers]" >ansible/hosts
 
 ###############################################
 ############## WEB server VM ##################
