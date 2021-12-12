@@ -1,4 +1,10 @@
 #!/bin/bash
+
+# Generate SSH key
+ssh-keygen -f master_key -q -N ""
+
+
+
 # Connect to VU
 export ONE_XMLRPC="https://grid5.mif.vu.lt/cloud3/RPC2"
 #export ONE_AUTH="$HOME/.one/Matas_auth"
@@ -12,7 +18,7 @@ export ONE_XMLRPC="https://grid5.mif.vu.lt/cloud3/RPC2"
 export ONE_AUTH="$HOME/.one/Darius_auth"
 
 # Create Debian 11 VM with 4 GB disk; Get VM id
-WEB_VM_ID=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096 | cut -d ' ' -f 3)
+WEB_VM_ID=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096 --ssh master_key.pub | cut -d ' ' -f 3)
 
 # Notify
 echo "$(date +"%T") WEB VM deployment started, ID: $WEB_VM_ID"
@@ -24,7 +30,7 @@ while [ "3" -ne $(echo $RESULT_XML | xmllint --xpath '//VM/STATE/text()' -) ]; d
     sleep 5
     RESULT_XML=$(onevm show $WEB_VM_ID -x)
 done
-echo "VM Initialized"
+echo "$(date +"%T") WEB VM Initialized"
 while [ "3" -ne $(echo $RESULT_XML | xmllint --xpath '//VM/LCM_STATE/text()' -) ]; do
     echo "$(date +"%T") VM LCM State not RUNNING, waiting 5 sec"
     sleep 5
