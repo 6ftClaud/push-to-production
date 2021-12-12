@@ -18,7 +18,7 @@ export ONE_XMLRPC="https://grid5.mif.vu.lt/cloud3/RPC2"
 export ONE_AUTH="$HOME/.one/Darius_auth"
 
 # Create Debian 11 VM with 4 GB disk; Get VM id
-WEB_VM_ID=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096 --ssh master_key.pub | cut -d ' ' -f 3)
+WEB_VM_ID=$(onetemplate instantiate 1570 --name "PTP-WEB" --disk 3107:size=4096 --ssh master_key.pub --context NETWORK=YES | cut -d ' ' -f 3)
 
 # Notify
 echo "$(date +"%T") WEB VM deployment started, ID: $WEB_VM_ID"
@@ -44,8 +44,6 @@ while [ "false" = $(echo $RESULT_XML | xmllint --xpath 'boolean(//VM/USER_TEMPLA
 done
 echo "$(date +"%T") WEB VM IP retrieved, Proceeding!"
 
-# Save VM Status for debbuging
-echo $RESULT_XML | xmllint --format - >"${WEB_VM_ID}.txt"
 
 # Get Network information
 WEB_VM_PUB_IP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/PUBLIC_IP/text()' -)
@@ -54,3 +52,12 @@ WEB_VM_PRIV_IP=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLAT
 echo "$(date +"%T") WEB VM Private IP: $WEB_VM_PRIV_IP"
 WEB_VM_FRWRD=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/TCP_PORT_FORWARDING/text()' -)
 echo "$(date +"%T") WEB VM Port Forwarding (public:private): $WEB_VM_FRWRD"
+
+while ! ssh  -o "StrictHostKeyChecking no" -i master_key root@$WEB_VM_PRIV_IP '$(date +"%T") WEB VM SSH Verified, Proceeding!'
+do
+    echo "$(date +"%T") VM SSH not up yet, waiting 5 sec"
+    sleep 5
+done
+
+# Save VM Status for debbuging
+echo $RESULT_XML | xmllint --format - >"${WEB_VM_ID}.txt"
