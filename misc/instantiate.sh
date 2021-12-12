@@ -1,7 +1,7 @@
 #!/bin/bash
 
 Print_status() {
-    echo "\e[94m\e[1m$(date +"%T")\e[0m \e[31mPTP-$1\e[0m $2"
+    echo -e "\e[94m\e[1m$(date +"%T")\e[0m \e[31mPTP-$1\e[0m $2"
 }
 
 Create_VM() {
@@ -39,11 +39,8 @@ Create_VM() {
     VM_FRWRD=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/TCP_PORT_FORWARDING/text()' -)
     Print_status $3 "Port Forwarding (public:private): $VM_FRWRD"
 
-
-    while ! ssh -o "StrictHostKeyChecking no" -i master_key root@$VM_PRIV_IP "echo \"\$(date +\"%T\") PTP-$3 SSH Verified, Proceeding!\"" 2>/dev/null
-    do
-        if ssh-keygen -F "$VM_PRIV_IP"
-        then
+    while ! ssh -o "StrictHostKeyChecking no" -i master_key root@$VM_PRIV_IP "echo \"\$(date +\"%T\") PTP-$3 SSH Verified, Proceeding!\"" 2>/dev/null; do
+        if ssh-keygen -F "$VM_PRIV_IP"; then
             Print_status $3 "OLD SSH key found, deleting"
             ssh-keygen -R $VM_PRIV_IP
         fi
@@ -59,16 +56,14 @@ Create_VM() {
     Print_status $3 "VM CREATED! (I hope)"
 }
 
-
 # Generate SSH key
 
 Print_status "Main" "Generating SSH key"
 ssh-keygen -f master_key -q -N ""
 Print_status "Main" "SSH key generated!"
 
-
 Print_status "Main" "Generating Password"
-password=$(< /dev/urandom tr -dc _a-z-0-9 | head -c8)
+password=$(tr </dev/urandom -dc _a-z-0-9 | head -c8)
 echo $password >master_password
 Print_status "Main" "Done! Password is: $password"
 
@@ -84,15 +79,13 @@ Print_status "Main" "Starting WEB VM creation"
 # Use Auth File of Darius
 export ONE_AUTH="$HOME/.one/Darius_auth"
 
-
 # Create Debian 11 VM with 4 GB disk; Get VM id
 VM_Image_ID=1570 #Debian 11
-VM_Disk_ID=3107 #Debian 11 Disk
+VM_Disk_ID=3107  #Debian 11 Disk
 VM_Name="WEB"
 VM_Port=80
 
 Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
-
 
 ###############################################
 ############## SQL server VM ##################
@@ -103,12 +96,11 @@ export ONE_AUTH="$HOME/.one/Julius_auth"
 
 # Create Debian 11 VM with 4 GB disk; Get VM id
 VM_Image_ID=1570 #Debian 11
-VM_Disk_ID=3107 #Debian 11 Disk
+VM_Disk_ID=3107  #Debian 11 Disk
 VM_Name="SQL"
 VM_Port=22
 
 Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
-
 
 ###############################################
 ############## RDP client VM ##################
@@ -119,11 +111,10 @@ export ONE_AUTH="$HOME/.one/Klaudijus_auth"
 
 # Create Debian 11 VM with 4 GB disk; Get VM id
 VM_Image_ID=1571 #Debian 11 lxde
-VM_Disk_ID=3108 #Debian 11 Disk
+VM_Disk_ID=3108  #Debian 11 Disk
 VM_Name="Client"
 VM_Port=3389
 
 Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
-
 
 Print_status "Main" "Infrastructure Created! Gool luck Klaudijus!"
