@@ -53,6 +53,8 @@ Create_VM() {
 
     echo "PTP-$3 ansible_host=$VM_PRIV_IP ansible_ssh_private_key_file=master_key" >>ansible/hosts
 
+    echo "PTP-$3,$VM_PRIV_IP,$VM_PUB_IP,$(echo $VM_FRWRD | cut -d ':' -f 1),$(echo $VM_FRWRD | cut -d ':' -f 2)" >>created_VMs.csv
+
     Print_status $3 "VM CREATED! (I hope)"
 }
 
@@ -71,6 +73,7 @@ Print_status "Main" "Done! Password is: $password"
 export ONE_XMLRPC="https://grid5.mif.vu.lt/cloud3/RPC2"
 
 echo "[servers]" >ansible/hosts
+echo "Name,Private_IP,Public_IP,External_Port,Internal_Port" >created_VMs.csv
 
 ###############################################
 ############## WEB server VM ##################
