@@ -38,7 +38,11 @@ Create_VM() {
     Print_status $3 "Private IP: $VM_PRIV_IP"
     VM_FRWRD=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/TCP_PORT_FORWARDING/text()' -)
     Print_status $3 "Port Forwarding (public:private): $VM_FRWRD"
-
+    
+    if ssh-keygen -F "$VM_PRIV_IP"; then
+        Print_status $3 "OLD SSH key found, deleting"
+        ssh-keygen -R $VM_PRIV_IP
+    fi
     while ! ssh -o "StrictHostKeyChecking no" -i master_key root@$VM_PRIV_IP "echo \"\$(date +\"%T\") PTP-$3 SSH Verified, Proceeding!\"" 2>/dev/null; do
         if ssh-keygen -F "$VM_PRIV_IP"; then
             Print_status $3 "OLD SSH key found, deleting"
@@ -51,7 +55,7 @@ Create_VM() {
     # Save VM Status for debbuging
     echo $RESULT_XML | xmllint --format - >"${VM_ID}.txt"
 
-    echo "PTP-$3 ansible_host=$VM_PRIV_IP ansible_ssh_private_key_file=master_key" >>ansible/hosts
+    echo "PTP-$3 ansible_host=$VM_PRIV_IP ansible_ssh_private_key_file=master_key ansible_user=root" >>ansible/hosts
 
     echo "PTP-$3,$VM_PRIV_IP,$VM_PUB_IP,$(echo $VM_FRWRD | cut -d ':' -f 1),$(echo $VM_FRWRD | cut -d ':' -f 2)" >>created_VMs.csv
 
@@ -82,7 +86,7 @@ Print_status "Main" "Starting WEB VM creation"
 # Use Auth File of Darius
 export ONE_AUTH="$HOME/.one/Darius_auth"
 
-# Create Debian 11 VM with 4 GB disk; Get VM id
+# Create Debian 11 VM; Get VM id
 VM_Image_ID=1570 #Debian 11
 VM_Disk_ID=3107  #Debian 11 Disk
 VM_Name="WEB"
@@ -97,7 +101,7 @@ Print_status "Main" "Starting SQL VM creation"
 # Use Auth File of Darius
 export ONE_AUTH="$HOME/.one/Julius_auth"
 
-# Create Debian 11 VM with 4 GB disk; Get VM id
+# Create Debian 11 VM; Get VM id
 VM_Image_ID=1570 #Debian 11
 VM_Disk_ID=3107  #Debian 11 Disk
 VM_Name="SQL"
@@ -112,7 +116,7 @@ Print_status "Main" "Starting Client VM creation"
 # Use Auth File of Darius
 export ONE_AUTH="$HOME/.one/Klaudijus_auth"
 
-# Create Debian 11 VM with 4 GB disk; Get VM id
+# Create Debian 11 VM with GUI; Get VM id
 VM_Image_ID=1571 #Debian 11 lxde
 VM_Disk_ID=3108  #Debian 11 Disk
 VM_Name="Client"
@@ -121,3 +125,5 @@ VM_Port=3389
 Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
 
 Print_status "Main" "Infrastructure Created! Gool luck Klaudijus!"
+
+ansible all -i ansible/hosts -m ping
