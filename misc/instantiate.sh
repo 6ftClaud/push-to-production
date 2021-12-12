@@ -39,12 +39,14 @@ Create_VM() {
     VM_FRWRD=$(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/TCP_PORT_FORWARDING/text()' -)
     Print_status $3 "Port Forwarding (public:private): $VM_FRWRD"
 
-    if ssh-keygen -F $VM_PRIV_IP >/dev/null; then
+    if ssh-keygen -F "$VM_PRIV_IP"
+    then
         Print_status $3 "OLD SSH key found, deleting"
         ssh-keygen -R $VM_PRIV_IP
     fi
 
-    while ! ssh -o "StrictHostKeyChecking no" -i master_key root@$VM_PRIV_IP "echo \"\$(date +\"%T\") PTP-$3 SSH Verified, Proceeding!\""; do
+    while ! ssh -o "StrictHostKeyChecking no" -i master_key root@$VM_PRIV_IP "echo \"\$(date +\"%T\") PTP-$3 SSH Verified, Proceeding!\"" 2>/dev/null
+    do
         Print_status $3 "SSH not up yet, waiting 5 sec"
         sleep 5
     done
@@ -52,7 +54,7 @@ Create_VM() {
     # Save VM Status for debbuging
     echo $RESULT_XML | xmllint --format - >"${VM_ID}.txt"
 
-    Print_status $3 "VM CREATED! (I hope))"
+    Print_status $3 "VM CREATED! (I hope)"
 }
 
 
@@ -61,9 +63,6 @@ ssh-keygen -f master_key -q -N ""
 
 # Connect to VU
 export ONE_XMLRPC="https://grid5.mif.vu.lt/cloud3/RPC2"
-#export ONE_AUTH="$HOME/.one/Matas_auth"
-#export ONE_AUTH="$HOME/.one/Julius_auth"
-#export ONE_AUTH="$HOME/.one/Klaudijus_auth"
 
 ###############################################
 ############## WEB server VM ##################
@@ -77,3 +76,7 @@ VM_Disk_ID=3107 #Debian 11 Disk
 VM_Name="WEB"
 
 Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name
+
+
+#export ONE_AUTH="$HOME/.one/Julius_auth"
+#export ONE_AUTH="$HOME/.one/Klaudijus_auth"
