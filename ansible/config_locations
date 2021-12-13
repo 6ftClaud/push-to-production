@@ -1,3 +1,2 @@
-/var/www/html/phpmyadmin/config.inc.php
 /etc/mysql/my.cnf my.cnf
 /etc/mysql/mariadb.conf.d/50-server.cnf
