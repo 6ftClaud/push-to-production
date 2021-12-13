@@ -62,11 +62,17 @@ Create_VM() {
     Print_status $3 "VM CREATED! (I hope)"
 }
 
+# set permissions
+umask u=rwx,g=rwx,o=rx
+
 # Generate SSH key
 
 Print_status "Main" "Generating SSH key"
 ssh-keygen -f master_key -q -N ""
 Print_status "Main" "SSH key generated!"
+
+chmod 660 master_key
+chmod 660 master_key.pub
 
 Print_status "Main" "Generating Password"
 password=$(tr </dev/urandom -dc a-z0-9 | head -c8)
