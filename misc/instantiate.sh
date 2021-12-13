@@ -43,7 +43,7 @@ Create_VM() {
         Print_status $3 "OLD SSH key found, deleting"
         ssh-keygen -R $VM_PRIV_IP
     fi
-    while ! ssh -o "StrictHostKeyChecking no" -i master_key root@$VM_PRIV_IP "echo \"\$(date +\"%T\") PTP-$3 SSH Verified, Proceeding!\"" 2>/dev/null; do
+    while ! ssh -o "StrictHostKeyChecking no" -i master_key root@$VM_PRIV_IP "echo \"\$(date +\"%T\") PTP-$3 SSH Verified, Proceeding!\""; do
         if ssh-keygen -F "$VM_PRIV_IP"; then
             Print_status $3 "OLD SSH key found, deleting"
             ssh-keygen -R $VM_PRIV_IP
@@ -62,17 +62,12 @@ Create_VM() {
     Print_status $3 "VM CREATED! (I hope)"
 }
 
-# set permissions
-umask u=rwx,g=rwx,o=rx
-
 # Generate SSH key
 
 Print_status "Main" "Generating SSH key"
 ssh-keygen -f master_key -q -N ""
 Print_status "Main" "SSH key generated!"
 
-chmod 660 master_key
-chmod 660 master_key.pub
 
 Print_status "Main" "Generating Password"
 password=$(tr </dev/urandom -dc a-z0-9 | head -c8)
