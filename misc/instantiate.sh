@@ -84,7 +84,7 @@ echo "Name,Private_IP,Public_IP,External_Port,Internal_Port" >created_VMs.csv
 ###############################################
 Print_status "Main" "Starting WEB VM creation"
 # Use Auth File of Darius
-export ONE_AUTH="$HOME/.one/Darius_auth"
+export ONE_AUTH="/etc/opennebula/.one/Darius_auth"
 
 # Create Debian 11 VM; Get VM id
 VM_Image_ID=1570 #Debian 11
@@ -99,7 +99,7 @@ Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
 ###############################################
 Print_status "Main" "Starting SQL VM creation"
 # Use Auth File of Darius
-export ONE_AUTH="$HOME/.one/Julius_auth"
+export ONE_AUTH="/etc/opennebula/.one/Julius_auth"
 
 # Create Debian 11 VM; Get VM id
 VM_Image_ID=1570 #Debian 11
@@ -114,7 +114,7 @@ Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
 ###############################################
 Print_status "Main" "Starting Client VM creation"
 # Use Auth File of Darius
-export ONE_AUTH="$HOME/.one/Klaudijus_auth"
+export ONE_AUTH="/etc/opennebula/.one/Klaudijus_auth"
 
 # Create Debian 11 VM with GUI; Get VM id
 VM_Image_ID=1571 #Debian 11 lxde
