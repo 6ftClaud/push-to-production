@@ -1,0 +1,49 @@
+---
+- hosts: db
+
+  - name: Install packages
+    - name: Install MariaDB
+        apt: name=mariadb-server update_cache=yes state=latest
+    - name: Install PyMySQL
+        apt: name=python3-PyMySQL update_cache=yes state=latest
+
+  - name: Clone git repository
+    git:
+      repo: https://github.com/6ftClaud/push-to-production.git
+      dest: /tmp/push-to-production
+      clone: yes
+      update: yes
+
+  - name: Copy database files
+    - name: copy my.cnf
+        copy:
+          src: /tmp/push-to-production/config_locations/my.cnf
+          dest: /etc/mysql/my.cnf
+    - name: copy 50-server.cnf
+        copy:
+          src: /tmp/push-to-production/config_locations/50-server.cnf
+          dest: /etc/mysql/mariadb.conf.d/50-server.cnf
+
+  - name: Create database user with all privileges
+    community.mysql.mysql_user:
+      name: Webserv
+      password: jupl8643
+      priv: '*.*:ALL'
+      host: %
+      state: present
+
+    - name: Restore database
+      community.mysql.mysql_db:
+        name: my_db
+        state: import
+        target: /tmp/push-to-production/ansible/history.sql
+
+  - name: Cleanup
+    file:
+      state: absent
+      path: /tmp/push-to-production
+
+  - name: Restart MariaDB
+    ansible.builtin.systemd:
+      state: restarted
+      name: mariadb

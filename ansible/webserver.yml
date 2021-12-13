@@ -1,0 +1,50 @@
+---
+- hosts: webserver
+
+  - name: Install packages
+    - name: Install apache
+      apt: name=apache2 update_cache=yes state=latest
+    - name: Install ufw
+      apt: name=ufw update_cache=yes state=latest
+
+  - name: Clone git repository
+    git:
+      repo: https://github.com/6ftClaud/push-to-production.git
+      dest: /tmp/push-to-production
+      clone: yes
+      update: yes
+
+  - name: Copy webpage files/configs
+      copy:
+        src: /tmp/push-to-production/web-for-virtualization/*
+        dest: /var/www/html/
+
+  - name: Change directory permission
+    file:
+      path: /var/www/html/
+      state: directory
+      group: www-data
+      recurse: yes
+      mode: ug+rwx
+
+  - name: Cleanup
+    file:
+      state: absent
+      path: /tmp/push-to-production
+
+  - name: Allow access on port 80/tcp
+    community.general.ufw:
+      rule: allow
+      port: '80'
+      proto: tcp
+
+  - name: Add database LAN IP to /etc/hosts
+    ansible.builtin.command: echo "10.0.1.107 PTP-SQL" >> /etc/hosts
+
+  - name: Restart Apache
+    ansible.builtin.systemd:
+      state: restarted
+      name: apache
+
+  - name: Enable webserver communication with database
+    ansible.builtin.command: php -q /var/www/html/server.php
