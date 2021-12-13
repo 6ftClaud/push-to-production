@@ -52,7 +52,7 @@ Create_VM() {
         sleep 5
     done
 
-    # Save VM Status for debbuging
+    # Save VM Status for debugging
     echo $RESULT_XML | xmllint --format - >"${VM_ID}.txt"
 
     echo "PTP-$3 ansible_host=$VM_PRIV_IP ansible_ssh_private_key_file=master_key ansible_user=root" >>ansible/hosts
@@ -99,7 +99,7 @@ Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
 ############## SQL server VM ##################
 ###############################################
 Print_status "Main" "Starting SQL VM creation"
-# Use Auth File of Darius
+# Use Auth File of Julius
 export ONE_AUTH="/etc/opennebula/.one/Julius_auth"
 
 # Create Debian 11 VM; Get VM id
@@ -114,7 +114,7 @@ Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
 ############## RDP client VM ##################
 ###############################################
 Print_status "Main" "Starting Client VM creation"
-# Use Auth File of Darius
+# Use Auth File of Klaudijus
 export ONE_AUTH="/etc/opennebula/.one/Klaudijus_auth"
 
 # Create Debian 11 VM with GUI; Get VM id
