@@ -140,7 +140,6 @@ ansible-playbook ansible/update.yml -i ansible/hosts
 ansible-playbook ansible/db.yml -i ansible/hosts
 ansible-playbook ansible/client.yml -i ansible/hosts
 ansible-playbook ansible/webserver.yml -i ansible/hosts
-#ansible-playbook ansible/webserver_php_start.yml -i ansible/hosts
 
 echo "#################################"
 echo "########## Connection ###########"

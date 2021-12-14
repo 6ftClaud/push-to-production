@@ -20,13 +20,13 @@
 
     - name: copy my.cnf
       copy:
-        src: /tmp/push-to-production/ansible/my.cnf
+        src: /tmp/push-to-production/misc/my.cnf
         dest: /etc/mysql/my.cnf
         remote_src: yes
 
     - name: copy 50-server.cnf
       copy:
-        src: /tmp/push-to-production/ansible/50-server.cnf
+        src: /tmp/push-to-production/misc/50-server.cnf
         dest: /etc/mysql/mariadb.conf.d/50-server.cnf
         remote_src: yes
 
@@ -45,7 +45,7 @@
         login_unix_socket: /var/run/mysqld/mysqld.sock
         name: HelpChat
         state: import
-        target: /tmp/push-to-production/ansible/history.sql
+        target: /tmp/push-to-production/misc/history.sql
 
     - name: Cleanup
       file:

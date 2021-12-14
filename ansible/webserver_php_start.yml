@@ -1,7 +1,0 @@
----
-- hosts: PTP-WEB
-
-  tasks:
-
-  - name: Enable webserver communication with database
-    shell: nohup php -q /var/www/html/server.php  </dev/null >/dev/null 2>&1 &
