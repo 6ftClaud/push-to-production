@@ -1,49 +1,58 @@
 ---
-- hosts: db
+- hosts: PTP-SQL
 
-  - name: Install packages
-    - name: Install MariaDB
-        apt: name=mariadb-server update_cache=yes state=latest
-    - name: Install PyMySQL
-        apt: name=python3-PyMySQL update_cache=yes state=latest
+  tasks:
 
-  - name: Clone git repository
-    git:
-      repo: https://github.com/6ftClaud/push-to-production.git
-      dest: /tmp/push-to-production
-      clone: yes
-      update: yes
+    - name: Install packages
+      apt: 
+        pkg:
+        - mariadb-server
+        - python3-pymysql
+        update_cache: yes
+        state: latest
 
-  - name: Copy database files
+    - name: Clone git repository
+      git:
+        repo: https://github.com/6ftClaud/push-to-production.git
+        dest: /tmp/push-to-production
+        clone: yes
+        update: yes
+
     - name: copy my.cnf
-        copy:
-          src: /tmp/push-to-production/config_locations/my.cnf
-          dest: /etc/mysql/my.cnf
-    - name: copy 50-server.cnf
-        copy:
-          src: /tmp/push-to-production/config_locations/50-server.cnf
-          dest: /etc/mysql/mariadb.conf.d/50-server.cnf
+      copy:
+        src: /tmp/push-to-production/ansible/my.cnf
+        dest: /etc/mysql/my.cnf
+        remote_src: yes
 
-  - name: Create database user with all privileges
-    community.mysql.mysql_user:
-      name: Webserv
-      password: jupl8643
-      priv: '*.*:ALL'
-      host: %
-      state: present
+    - name: copy 50-server.cnf
+      copy:
+        src: /tmp/push-to-production/ansible/50-server.cnf
+        dest: /etc/mysql/mariadb.conf.d/50-server.cnf
+        remote_src: yes
+
+    - name: Create database user with all privileges
+      community.mysql.mysql_user:
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        check_implicit_admin: yes
+        name: Webserv
+        password: jupl8643
+        priv: '*.*:ALL'
+        host: '%'
+        state: present
 
     - name: Restore database
       community.mysql.mysql_db:
-        name: my_db
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        name: HelpChat
         state: import
         target: /tmp/push-to-production/ansible/history.sql
 
-  - name: Cleanup
-    file:
-      state: absent
-      path: /tmp/push-to-production
+    - name: Cleanup
+      file:
+        state: absent
+        path: /tmp/push-to-production
 
-  - name: Restart MariaDB
-    ansible.builtin.systemd:
-      state: restarted
-      name: mariadb
+    - name: Restart MariaDB
+      ansible.builtin.systemd:
+        state: restarted
+        name: mariadb
