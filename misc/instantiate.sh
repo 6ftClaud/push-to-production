@@ -125,7 +125,7 @@ VM_Port=3389
 
 Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
 
-Print_status "Main" "Infrastructure Created! Gool luck Klaudijus!"
+Print_status "Main" "Infrastructure Created! Good luck Klaudijus!"
 
 ansible all -i ansible/hosts -m ping
 
