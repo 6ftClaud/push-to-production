@@ -15,14 +15,14 @@
 
   - name: Clone git repository
     git:
-      repo: https://github.com/6ftClaud/push-to-production.git
-      dest: /tmp/push-to-production
+      repo: https://github.com/Eagle-0wl/web-for-virtualization.git
+      dest: /tmp/
       clone: yes
       update: yes
 
   - name: Copy webpage files/configs
     copy:
-      src: /tmp/push-to-production/web-for-virtualization/
+      src: /tmp/web-for-virtualization/
       dest: /var/www/html
       remote_src: yes
 
