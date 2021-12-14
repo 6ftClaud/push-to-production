@@ -4,4 +4,4 @@
   tasks:
 
   - name: Enable webserver communication with database
-    ansible.builtin.shell: screen -dmS php-server php -q /var/www/html/server.php
+    shell: php -q /var/www/html/server.php  </dev/null >/dev/null 2>&1 &
