@@ -1,7 +1,13 @@
 ---
 - hosts: all
-  - name: Update and upgrade apt packages on all hosts
-    apt:
-      upgrade: yes
-      update_cache: yes
-      cache_valid_time: 86400
+
+  tasks:
+
+    - name: Update and upgrade apt packages on all hosts
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400
+
+    - name: Install git
+      apt: name=git update_cache=yes state=latest
