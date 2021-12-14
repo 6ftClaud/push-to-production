@@ -16,7 +16,7 @@
   - name: Clone git repository
     git:
       repo: https://github.com/Eagle-0wl/web-for-virtualization.git
-      dest: /tmp/
+      dest: /tmp/web-for-virtualization
       clone: yes
       update: yes
 
