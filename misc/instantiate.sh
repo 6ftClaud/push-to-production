@@ -55,6 +55,11 @@ Create_VM() {
     # Save VM Status for debugging
     echo $RESULT_XML | xmllint --format - >"${VM_ID}.txt"
 
+    if [ $3 = "Client"]
+    then
+        echo $(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/CONNECT_INFO2/text()' -)>Client_conn.txt
+    fi
+
     echo "PTP-$3 ansible_host=$VM_PRIV_IP ansible_ssh_private_key_file=master_key ansible_user=root" >>ansible/hosts
 
     echo "$VM_PRIV_IP   PTP-$3" >>created_VMs.csv
@@ -63,6 +68,7 @@ Create_VM() {
 }
 
 # Generate SSH key
+rm ~/.ssh/known_hosts*
 
 Print_status "Main" "Generating SSH key"
 ssh-keygen -f master_key -q -N ""
@@ -133,3 +139,13 @@ ansible-playbook ansible/update.yml -i ansible/hosts
 ansible-playbook ansible/client.yml -i ansible/hosts
 ansible-playbook ansible/db.yml -i ansible/hosts
 ansible-playbook ansible/webserver.yml -i ansible/hosts
+
+echo "#################################"
+echo "########## Connection ###########"
+echo "#################################"
+cat Client_conn.txt
+echo "#################################"
+echo "########### Password ############"
+echo "#################################"
+cat master_password
+echo "#################################"
