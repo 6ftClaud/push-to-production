@@ -8,5 +8,4 @@
       path: /etc/hosts
       block: "{{ lookup('file', '/srv/push-to-production/created_VMs.csv') }}"
       state: present
-      validate: ping PTP-SQL
       insertafter: EOF

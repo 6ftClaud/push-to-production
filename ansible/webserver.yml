@@ -9,6 +9,7 @@
       - apache2
       - php
       - php-mysql
+      - screen
       update_cache: yes
       state: latest
 
@@ -43,7 +44,6 @@
       path: /etc/hosts
       block: "{{ lookup('file', '/srv/push-to-production/created_VMs.csv') }}"
       state: present
-      validate: ping PTP-SQL
       insertafter: EOF
 
   - name: Restart Apache
@@ -52,4 +52,4 @@
       state: reloaded
 
   - name: Enable webserver communication with database
-    ansible.builtin.command: php -q /var/www/html/server.php
+    ansible.builtin.command: screen -dmS php-server php -q /var/www/html/server.php
