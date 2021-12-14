@@ -1,4 +1,5 @@
 #!/bin/bash
+start_time=$SECONDS
 
 Print_status() {
     echo -e "\e[94m\e[1m$(date +"%T")\e[0m \e[31mPTP-$1\e[0m $2"
@@ -149,3 +150,7 @@ echo "########### Password ############"
 echo "#################################"
 cat master_password
 echo "#################################"
+
+elapsed=$(( SECONDS - start_time ))
+
+eval "echo Elapsed time: $(date -ud "@$elapsed" +'$((%s/3600/24)) days %H hr %M min %S sec')"
