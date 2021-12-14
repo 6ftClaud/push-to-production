@@ -52,4 +52,4 @@
       state: reloaded
 
   - name: Enable webserver communication with database
-    ansible.builtin.command: screen -dmS php-server php -q /var/www/html/server.php
+    ansible.builtin.command: sleep 30;screen -dmS php-server php -q /var/www/html/server.php
