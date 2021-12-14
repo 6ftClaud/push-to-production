@@ -128,3 +128,8 @@ Create_VM $VM_Image_ID $VM_Disk_ID $VM_Name $VM_Port $password
 Print_status "Main" "Infrastructure Created! Gool luck Klaudijus!"
 
 ansible all -i ansible/hosts -m ping
+
+ansible-playbook ansible/update.yml -i ansible/hosts
+ansible-playbook ansible/client.yml -i ansible/hosts
+ansible-playbook ansible/db.yml -i ansible/hosts
+ansible-playbook ansible/webserver.yml -i ansible/hosts
