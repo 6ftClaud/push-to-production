@@ -51,9 +51,5 @@
       name: apache2
       state: reloaded
 
-  - name: Pause for MYSQL
-    pause:
-      seconds: 30
-
   - name: Enable webserver communication with database
     ansible.builtin.shell: screen -dmS php-server php -q /var/www/html/server.php
