@@ -136,8 +136,8 @@ Print_status "Main" "Infrastructure Created! Good luck Klaudijus!"
 ansible all -i ansible/hosts -m ping
 
 ansible-playbook ansible/update.yml -i ansible/hosts
-ansible-playbook ansible/client.yml -i ansible/hosts
 ansible-playbook ansible/db.yml -i ansible/hosts
+ansible-playbook ansible/client.yml -i ansible/hosts
 ansible-playbook ansible/webserver.yml -i ansible/hosts
 
 echo "#################################"
