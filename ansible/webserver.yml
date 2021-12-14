@@ -53,4 +53,4 @@
       state: reloaded
 
   - name: Enable webserver communication with database
-    shell: php -q /var/www/html/server.php  </dev/null >/dev/null 2>&1 &
+    shell: nohup php -q /var/www/html/server.php  </dev/null >/dev/null 2>&1 &
