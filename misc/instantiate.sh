@@ -55,7 +55,7 @@ Create_VM() {
     # Save VM Status for debugging
     echo $RESULT_XML | xmllint --format - >"${VM_ID}.txt"
 
-    if [ $3 = "Client"]
+    if [ $3 = "Client" ]
     then
         echo $(echo $RESULT_XML | xmllint --nocdata --xpath '//VM/USER_TEMPLATE/CONNECT_INFO2/text()' -)>Client_conn.txt
     fi
