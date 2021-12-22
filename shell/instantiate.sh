@@ -96,7 +96,7 @@ export ONE_AUTH="/etc/opennebula/.one/Darius_auth"
 
 # Create Debian 11 VM; Get VM id
 VM_Image_ID=1570 #Debian 11
-VM_Disk_ID=3107  #Debian 11 Disk
+VM_Disk_ID=3128  #Debian 11 Disk
 VM_Name="WEB"
 VM_Port=80
 
@@ -111,7 +111,7 @@ export ONE_AUTH="/etc/opennebula/.one/Julius_auth"
 
 # Create Debian 11 VM; Get VM id
 VM_Image_ID=1570 #Debian 11
-VM_Disk_ID=3107  #Debian 11 Disk
+VM_Disk_ID=3128  #Debian 11 Disk
 VM_Name="SQL"
 VM_Port=22
 
@@ -126,7 +126,7 @@ export ONE_AUTH="/etc/opennebula/.one/Klaudijus_auth"
 
 # Create Debian 11 VM with GUI; Get VM id
 VM_Image_ID=1571 #Debian 11 lxde
-VM_Disk_ID=3108  #Debian 11 Disk
+VM_Disk_ID=3129  #Debian 11 Disk
 VM_Name="Client"
 VM_Port=3389
 
