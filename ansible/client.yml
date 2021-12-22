@@ -9,3 +9,6 @@
       block: "{{ lookup('file', '/srv/push-to-production/created_VMs.csv') }}"
       state: present
       insertafter: EOF
+      
+  - name: Install midori
+    apt: name=midori update_cache=yes state=latest
